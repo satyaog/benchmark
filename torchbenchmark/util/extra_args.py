@@ -3,6 +3,7 @@ from typing import List
 from torchbenchmark.util.backends.fx2trt import enable_fx2trt
 from torchbenchmark.util.backends.fuser import enable_fuser
 from torchbenchmark.util.backends.torch_trt import enable_torchtrt
+from torchbenchmark.util.backends.flops import enable_flops
 from torchbenchmark.util.framework.vision.args import enable_fp16
 
 def add_bool_arg(parser: argparse.ArgumentParser, name: str, default_value: bool=True):
@@ -17,9 +18,11 @@ def is_torchvision_model(model: 'torchbenchmark.util.model.BenchmarkModel') -> b
 def allow_fp16(model: 'torchbenchmark.util.model.BenchmarkModel') -> bool:
     return is_torchvision_model(model) and model.test == 'eval' and model.device == 'cuda'
 
+
 # Dispatch arguments based on model type
 def parse_args(model: 'torchbenchmark.util.model.BenchmarkModel', extra_args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--flops", action='store_true', help="enable flops counting")
     parser.add_argument("--fx2trt", action='store_true', help="enable fx2trt")
     parser.add_argument("--fuser", type=str, default="", help="enable fuser")
     parser.add_argument("--torch_trt", action='store_true', help="enable torch_tensorrt")
@@ -44,6 +47,9 @@ def parse_args(model: 'torchbenchmark.util.model.BenchmarkModel', extra_args: Li
             raise NotImplementedError("TensorRT only works for CUDA inference tests.")
     if hasattr(model, 'TORCHVISION_MODEL') and model.TORCHVISION_MODEL:
         args.cudagraph = False
+    elif args.flops:
+        args.flops = False
+        raise NotImplementedError("Flops is only enabled for TorchVision models")
     return args
 
 def apply_args(model: 'torchbenchmark.util.model.BenchmarkModel', args: argparse.Namespace):
@@ -59,6 +65,12 @@ def apply_args(model: 'torchbenchmark.util.model.BenchmarkModel', args: argparse
         model.set_module(enable_fx2trt(args.batch_size, fp16=args.fp16, model=module, example_inputs=exmaple_inputs))
     if args.torch_trt:
         module, exmaple_inputs = model.get_module()
+<<<<<<< HEAD
         precision = 'fp16' if args.fp16 else 'fp32'
         model.set_module(enable_torchtrt(precision=precision, model=module, example_inputs=exmaple_inputs))
 
+=======
+        model.set_module(enable_torchtrt(precision='fp32', model=module, example_inputs=exmaple_inputs))
+    if args.flops:
+        enable_flops(model)
+>>>>>>> f87426f9 (Fixed flops counting for torchvision.)
