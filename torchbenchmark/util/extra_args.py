@@ -18,7 +18,6 @@ def is_torchvision_model(model: 'torchbenchmark.util.model.BenchmarkModel') -> b
 def allow_fp16(model: 'torchbenchmark.util.model.BenchmarkModel') -> bool:
     return is_torchvision_model(model) and model.test == 'eval' and model.device == 'cuda'
 
-
 # Dispatch arguments based on model type
 def parse_args(model: 'torchbenchmark.util.model.BenchmarkModel', extra_args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -68,12 +67,7 @@ def apply_args(model: 'torchbenchmark.util.model.BenchmarkModel', args: argparse
         model.set_module(enable_fx2trt(args.batch_size, fp16=args.fp16, model=module, example_inputs=exmaple_inputs))
     if args.torch_trt:
         module, exmaple_inputs = model.get_module()
-<<<<<<< HEAD
         precision = 'fp16' if args.fp16 else 'fp32'
         model.set_module(enable_torchtrt(precision=precision, model=module, example_inputs=exmaple_inputs))
-
-=======
-        model.set_module(enable_torchtrt(precision='fp32', model=module, example_inputs=exmaple_inputs))
     if args.flops:
         enable_flops(model)
->>>>>>> f87426f9 (Fixed flops counting for torchvision.)
