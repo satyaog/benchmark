@@ -9,11 +9,11 @@ def git_lfs_checkout():
     tb_dir = os.path.dirname(os.path.realpath(__file__))
     try:
         # forcefully install git-lfs to the repo
-        subprocess.check_call(['git', 'lfs', 'install', '--force'], stdout=subprocess.PIPE,
+        subprocess.check_call(['git-lfs', 'install', '--force'], stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT, cwd=tb_dir)
-        subprocess.check_call(['git', 'lfs', 'fetch'], stdout=subprocess.PIPE,
+        subprocess.check_call(['git-lfs', 'fetch'], stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT, cwd=tb_dir)
-        subprocess.check_call(['git', 'lfs', 'checkout', '.'], stdout=subprocess.PIPE,
+        subprocess.check_call(['git-lfs', 'checkout', '.'], stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT, cwd=tb_dir)
     except subprocess.CalledProcessError as e:
         return (False, e.output)
